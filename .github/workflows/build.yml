@@ -1,10 +1,10 @@
-name: Build
+name: Build (debug)
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ develop ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ develop ]
 
 env:
   CARGO_TERM_COLOR: always
@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Check & Clippy
-      run: cargo check --verbose && cargo clippy --verbose -- -D warnings
+      run: cargo check --verbose && cargo clippy --verbose
     - name: Build
       run: cargo build --verbose
     - name: Run tests

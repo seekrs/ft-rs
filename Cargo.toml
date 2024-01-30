@@ -8,6 +8,8 @@ description = "A Rust library for the 42School API"
 
 readme = "README.md"
 license = "0BSD"
+keywords = ["42", "42school", "api"]
+categories = ["api-clients"]
 
 documentation = "https://docs.rs/ft-rs"
 homepage = "https://github.com/seekrs/ft-rs"
