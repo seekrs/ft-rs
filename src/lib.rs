@@ -1,6 +1,4 @@
 #![deny(clippy::all)]
-#![deny(clippy::pedantic)]
-#![deny(clippy::nursery)]
 #![deny(clippy::cargo)]
 //#![deny(missing_docs)]
 

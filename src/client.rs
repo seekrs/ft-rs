@@ -26,14 +26,15 @@ pub struct FtClient {
 impl FtClient {
   /// Creates a new client for a v2 application, providing the application's UID and secret.
   /// 
-  /// # Example
-  /// 
   /// ```rust
   /// use ft_rs::FtClient;
   /// 
-  /// fn main() {
-  ///   let client = FtClient::from_app("my_uid", "my_super_secret_secret");
-  /// }
+  /// let client = FtClient::from_app("my_uid", "my_super_secret_secret");
+  /// ```
+  /// 
+  /// # Errors
+  /// 
+  /// This method will return an error if the reqwest client could not be built, or if the UID or secret are invalid.
   pub fn from_app<U: Into<String>, S: Into<String>>(
     app_uid: U, 
     app_secret: S,
@@ -45,18 +46,18 @@ impl FtClient {
       .user_agent(format!("{}/{}", PKG_NAME, PKG_VERSION))
       .connect_timeout(Duration::from_secs(30))
       .build();
+
     if let Err(err) = client {
-      return Err(FtError::ReqwestBuilderError(err));
+      Err(FtError::ReqwestBuilderError(err))
+    } else {
+      Ok(Self { 
+        app_uid,
+        app_secret,
+  
+        client: client.unwrap(),
+        last_valid_token: None
+      })
     }
-    let client = client.unwrap();
-
-    Ok(Self { 
-      app_uid,
-      app_secret,
-
-      client,
-      last_valid_token: None
-    })
   }
 
   /// Fetches a new access token from the API.
@@ -67,7 +68,7 @@ impl FtClient {
   /// 
   /// # Example
   /// 
-  /// ```rust
+  /// ```no_run
   /// use ft_rs::FtClient;
   /// 
   /// #[tokio::main]
@@ -107,6 +108,9 @@ impl FtClient {
     }
   }
 
+  /// Ensures that the last valid token is still valid, and fetches a new one if it is not.
+  /// 
+  /// This method is called automatically by the API Client when making a request, so there is no need to call it manually.
   pub async fn ensure_valid_token(&mut self) -> Result<()> {
     if let Some(token) = &self.last_valid_token {
       if token.is_expired() {

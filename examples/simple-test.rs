@@ -1,6 +1,6 @@
 use ft_rs::FtClient;
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::main]
 async fn main() -> ft_rs::Result<()> {
   let client = FtClient::from_app(
     std::env::var("FT_RS_TEST_UID").expect("FT_RS_TEST_UID not set"), 
