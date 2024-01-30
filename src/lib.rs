@@ -1,14 +1,12 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+#![deny(clippy::all)]
+#![deny(clippy::pedantic)]
+#![deny(clippy::nursery)]
+#![deny(clippy::cargo)]
+#![deny(missing_docs)]
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+#![allow(clippy::module_name_repetitions)]
+#![allow(clippy::items_after_statements)]
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+//! # ft-rs
+//! This is a small library to help you with your rust projects.
+//! It contains a lot of useful functions and macros.
