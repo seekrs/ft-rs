@@ -5,12 +5,13 @@ authors = [
 	"Killian ROUSSARIE <oss@xtrm.me>"
 ]
 description = "A Rust library for the 42School API"
+
 readme = "README.md"
 license = "0BSD"
 
 documentation = "https://docs.rs/ft-rs"
-homepage = "https://github.com/seekrs/asgard/tree/main/ft-rs"
-repository = "https://github.com/seekrs/asgard/tree/main/ft-rs"
+homepage = "https://github.com/seekrs/ft-rs"
+repository = "https://github.com/seekrs/ft-rs"
 
 edition = "2021"
 rust-version = "1.56"
