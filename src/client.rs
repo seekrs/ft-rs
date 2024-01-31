@@ -1,5 +1,4 @@
 use reqwest::Client;
-use rocket::time::ext;
 use std::time::Duration;
 
 use crate::{models::{self, token::AccessToken}, FtError, Result};
@@ -164,39 +163,50 @@ impl FtClient {
   /// 
   /// This method is called automatically by the API Client when making a request, so there is no need to call it manually.
   pub async fn ensure_app_token(&mut self) -> Result<()> {
-    self.auth_type.try_refresh_token(self).await?;
+    // self.auth_type.try_refresh_token(self).await?;
     Ok(())
   }
 
-  pub fn get_authorization_url(&self, callback_url: &str, scopes: &[&str]) -> String {
-    format!(
-      "{}/oauth/authorize?client_id={}&redirect_uri={}&scope={}&response_type=code",
-      API_URL,
-      self.app_uid,
-      urlencoding::encode(callback_url),
-      scopes.join(" ")
-    )
+  pub fn get_authorization_url(&self, callback_url: &str, scopes: &[&str]) -> Result<String> {
+    if let AuthType::App { uid, .. } = &self.auth_type {
+      Ok(format!(
+        "{}/oauth/authorize?client_id={}&redirect_uri={}&scope={}&response_type=code",
+        API_URL,
+        uid,
+        urlencoding::encode(callback_url),
+        scopes.join(" ")
+      ))
+    } else {
+      Err(FtError::InvalidAuthType)
+    }
   }
 
   pub async fn fetch_access_token(&self, code: &str, callback_url: &str) -> Result<AccessToken> {
-    let res = self.client
-      .post(endpoint!("/oauth/token"))
-      .form(&[
-        ("grant_type", "authorization_code"),
-        ("client_id", &self.app_uid),
-        ("client_secret", &self.app_secret),
-        ("code", code),
-        ("redirect_uri", callback_url),
-      ])
-      .send()
-      .await?;
+    if let AuthType::App { uid, secret, .. } = &self.auth_type {
+      let res = self.client
+        .post(endpoint!("/oauth/token"))
+        .form(&[
+          ("grant_type", "authorization_code"),
+          ("client_id", &uid),
+          ("client_secret", &secret),
+          ("code", code),
+          ("redirect_uri", callback_url),
+        ])
+        .send()
+        .await?;
 
-    if res.status().is_success() {
-      let token = res.json::<AccessToken>().await?;
-      Ok(token)
+      if res.status().is_success() {
+        let text = res.text().await?;
+        println!("User Token: {:?}", text);
+        // let token = res.json::<AccessToken>().await?;
+        let token = serde_json::from_str::<AccessToken>(&text)?;
+        Ok(token)
+      } else {
+        self.handle_error(res).await?;
+        unreachable!()
+      }
     } else {
-      self.handle_error(res).await?;
-      unreachable!()
+      Err(FtError::InvalidAuthType)
     }
   }
 

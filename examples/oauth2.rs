@@ -39,7 +39,7 @@ async fn index(cookies: &CookieJar<'_>) -> RawHtml<String> {
       </div>
     })
   } else {
-    let auth_url = CLIENT.get_authorization_url(CALLBACK_URL, SCOPES);
+    let auth_url = CLIENT.get_authorization_url(CALLBACK_URL, SCOPES).unwrap();
     RawHtml(html! {
       <div>
         <h1>{"Hello, world!"}</h1>
