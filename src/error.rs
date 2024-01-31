@@ -40,17 +40,23 @@ pub enum FtError {
     #[from]
     source: serde_json::Error
   },
-  #[error("API error: {error:?}: {error_description:?}")]
+
+  #[error("Invalid auth type, tried to use a user token with an app client or vice-versa")]
+  InvalidAuthType,
+  
+  #[error("API error {error_status:?}: {error:?}: {error_description:?}")]
   ApiError {
     error: ErrorType,
+    error_status: u64,
     error_description: String
   },
 }
 
 impl FtError {
-  pub fn from_api_error(error: ErrorType, error_description: String) -> Self {
+  pub fn from_api_error(error: ErrorType, status: u64, error_description: String) -> Self {
     Self::ApiError {
       error,
+      error_status: status,
       error_description
     }
   }
